@@ -104,8 +104,8 @@ namespace rs
       const Bool_t allow_override = kTRUE
     )
     {
-      auto file = std::make_unique<TFile>(filepath, "READ");
-      if (file->IsOpen()) {
+      TFile* file = TFile::Open(filepath, "READ");
+      if (file) {
         if (!allow_override) {
           throw std::runtime_error(
             std::string("This file already exists : ") + filepath
@@ -117,9 +117,10 @@ namespace rs
             + filepath
           );
         }
+        file->Close();
       }
-      file.reset(new TFile(filepath, "RECREATE"));
-      return std::move(file);
+      delete file;
+      return std::make_unique<TFile>(filepath, "RECREATE");
     }
 
 
