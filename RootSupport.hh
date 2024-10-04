@@ -31,6 +31,7 @@
 #include "TMultiGraph.h"
 #include "TObject.h"
 #include "TPaveStats.h"
+#include "TSystem.h"
 #include "TVirtualFFT.h"
 
 #include "RootStyle.hh"
@@ -80,9 +81,16 @@ namespace rs
   {
     inline std::unique_ptr<TFile> Open(const Char_t* filepath)
     {
+      FileStat_t info;
+      if (gSystem->GetPathInfo(filepath, info) != 0) {
+        throw std::invalid_argument(std::string("No such file : ") + filepath);
+      }
+
       auto file = std::make_unique<TFile>(filepath, "READ");
       if (!(file->IsOpen())) {
-        throw std::invalid_argument(std::string("No such file : ") + filepath);
+        throw std::runtime_error(
+          std::string("failed to open this file : ") + filepath
+        );
       }
       if (file->TestBit(TFile::kRecovered) || file->IsZombie()) {
         throw std::runtime_error(
@@ -104,22 +112,12 @@ namespace rs
       const Bool_t allow_override = kTRUE
     )
     {
-      TFile* file = TFile::Open(filepath, "READ");
-      if (file) {
-        if (!allow_override) {
-          throw std::runtime_error(
-            std::string("This file already exists : ") + filepath
-          );
-        }
-        if (file->TestBit(TFile::kRecovered) || file->IsZombie()) {
-          throw std::runtime_error(
-            std::string("This file may be opend by other programs : ")
-            + filepath
-          );
-        }
-        file->Close();
+      FileStat_t info;
+      if (gSystem->GetPathInfo(filepath, info) == 0 && !allow_override) {
+        throw std::runtime_error(
+          std::string("This file already exists : ") + filepath
+        );
       }
-      delete file;
       return std::make_unique<TFile>(filepath, "RECREATE");
     }
 

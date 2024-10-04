@@ -111,8 +111,8 @@ namespace rs
       */
       s->SetLegendBorderSize(1);
       s->SetLegendFont      (font);
-      s->SetLegendTextSize  (size);
-      s->SetLegendFillColor (kBlack);
+      // s->SetLegendTextSize  (size);
+      s->SetLegendFillColor (kWhite);
 
       /*
         SetMarker
@@ -131,9 +131,9 @@ namespace rs
       s->SetPadBorderMode   (0);
       s->SetPadColor        (kWhite);
       s->SetPadTopMargin    (0.08);
-      s->SetPadRightMargin  (0.05);
+      s->SetPadRightMargin  (0.07);
       s->SetPadBottomMargin (0.13);
-      s->SetPadLeftMargin   (0.16);
+      s->SetPadLeftMargin   (0.14);
 
       /*
         SetStat
