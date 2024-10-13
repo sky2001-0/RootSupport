@@ -102,9 +102,10 @@ namespace rs
       // s->SetHistFillColor   (kWhite);
       // s->SetHistFillStyle   (1001);
       // s->SetHistLineStyle   (1);
-      s->SetHistLineWidth   (2);
+      s->SetHistLineWidth   (1);
       // s->SetHistMinimumZero (kFALSE);
       // s->SetHistTopMargin   (0.05);
+      s->SetPalette         (1);
 
       /*
         SetLegend
@@ -175,7 +176,6 @@ namespace rs
       // s->SetOptFile         (0);
       // s->SetOrthoCamera     (kFALSE);
       // s->SetPaintTextFormat ();
-      // s->SetPalette         ();
       s->SetPaperSize       (20, 26);
       // s->SetScreenFactor    (1);
       // s->SetStripDecimals   (kTRUE);
