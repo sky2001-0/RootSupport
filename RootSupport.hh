@@ -7,6 +7,7 @@
 #include <string>
 #include <type_traits>
 #include <typeinfo>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -25,11 +26,13 @@
 #include "TH1.h"
 #include "THStack.h"
 #include "TKey.h"
+#include "TLeaf.h"
 #include "TLine.h"
 #include "TList.h"
 #include "TMath.h"
 #include "TMultiGraph.h"
 #include "TObject.h"
+#include "TObjArray.h"
 #include "TPaveStats.h"
 #include "TSystem.h"
 #include "TVirtualFFT.h"
@@ -214,7 +217,7 @@ namespace rs
 
   namespace graph
   {
-    template <typename TGraphLike>
+    template <typename TGraphLike = TGraph>
     std::unique_ptr<TGraphLike> Create(
       const Int_t n,
       const Char_t* name,
@@ -603,7 +606,6 @@ namespace rs
       rss::Assert_if_is_inheritance_of_TObject<TObjectLike>();
 
       auto c = std::make_unique<TCanvas>(obj->GetName(), obj->GetTitle());
-      c->cd();
       obj->Draw(opt);
       if (with_legend) {
         const double& x_1 = std::get<0>(legend_position);
@@ -759,6 +761,88 @@ namespace rs
     {
       gErrorIgnoreLevel = kWarning;
     }
+  }
+
+
+  namespace tree
+  {
+    class TreeHelper
+    {
+    private:
+      std::unique_ptr<TTree> tree_;
+      std::unordered_map<std::string, Double_t> vals_;
+
+    public:
+      TreeHelper() = delete;
+
+      explicit TreeHelper(std::unique_ptr<TTree> tree)
+      : tree_(std::move(tree))
+      {
+        TObjArray* branches = tree_->GetListOfBranches();
+        for (Int_t i = 0; i < branches->GetEntries(); ++i) {
+          auto* branch = static_cast<TBranch*>(branches->At(i));
+          const std::string bname = branch->GetName();
+
+          TLeaf* leaf = branch->GetLeaf(bname.c_str());
+          if (std::string(leaf->GetTypeName()) != "Double_t") {
+            continue;
+          }
+
+
+          vals_[bname] = 0.;
+          tree_->SetBranchAddress(bname.c_str(), &vals_[bname]);
+        }
+      }
+
+      explicit TreeHelper(std::vector<std::string> branch_names)
+      : tree_(std::make_unique<TTree>("tree", "tree"))
+      {
+        for (const std::string bname : branch_names) {
+          vals_[bname] = 0.;
+          tree_->Branch(bname.c_str(), &vals_[bname], (bname + "/D").c_str());
+        }
+      }
+
+      ~TreeHelper() noexcept = default;
+
+      TreeHelper(const TreeHelper& rh) = delete;
+
+      TreeHelper(TreeHelper&& rh) = delete;
+
+      TreeHelper& operator=(const TreeHelper& rh) = delete;
+
+      TreeHelper& operator=(TreeHelper&& rh) = delete;
+
+      Long64_t GetEntries() const
+      {
+        return tree_->GetEntries();
+      }
+
+      Int_t GetEntry(Long64_t entry)
+      {
+        return tree_->GetEntry(entry);
+      }
+
+      Double_t Get(const std::string bname) const
+      {
+        return vals_.at(bname);
+      }
+
+      Double_t& Getf(const std::string bname)
+      {
+        return vals_.at(bname);
+      }
+
+      Int_t Fill()
+      {
+        return tree_->Fill();
+      }
+
+      Int_t Write()
+      {
+        return tree_->Write();
+      }
+    };
   }
 }
 
