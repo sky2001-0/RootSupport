@@ -1,19 +1,24 @@
-## My custom support library for the ROOT framework
+# RootSupport
 
-This library provides additional support and functionality to enhance the usage of the ROOT framework.
+本ライブラリは、ROOTライブラリを利用する際の定型処理や冗長なコードを簡潔にして、より使いやすくするための補助ライブラリです。
 
-## Organization
+## 動作環境
 
-The library is organized into the following namespaces:
+未検証
 
-`rs::file` : functions related to file operations.
+## インストール
 
-`rs::graph` : tools for TGraph.
+利用するプロジェクトの直下にクローンして、プロジェクトのCMakeLists.txtに以下を加える。
+```
+add_subdirectory(RootSupport)
+```
 
-`rs::draw` : tools for TCanvas.
+## 使い方
 
-`rs::mul` : tools for TMultiGraph or THStack.
+```
+```
 
-`rs::math` : wrapper for TVirtualFFT.
+## その他
 
-`rs::utils` : other utilities.
+このライブラリは、アルファ版です。
+

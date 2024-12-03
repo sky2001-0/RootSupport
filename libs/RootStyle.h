@@ -1,10 +1,10 @@
-#ifndef ROOTSTYLE_HH
-#define ROOTSTYLE_HH
+#ifndef ROOTSTYLE_H
+#define ROOTSTYLE_H
 
 #include <memory>
 
-#include "TAttMarker.h"
 #include "Rtypes.h"
+#include "TAttMarker.h"
 #include "TColor.h"
 #include "TStyle.h"
 
@@ -186,4 +186,4 @@ namespace rs
 
 
 
-#endif // ROOTSTYLE_HH
+#endif // ROOTSTYLE_H

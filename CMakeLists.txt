@@ -1,18 +1,21 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-find_package(ROOT REQUIRED)
+project(RootSupport VERSION 1.0 LANGUAGES CXX)
 
-set(LIB_NAME RootSupport)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(${LIB_NAME} CXX)
+add_library(RootSupport INTERFACE)
 
-add_library(${LIB_NAME} INTERFACE)
-
-target_include_directories(${LIB_NAME} INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:include>
+target_include_directories(
+  RootSupport INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR}/libs
+  ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(${LIB_NAME} INTERFACE
+
+find_package(ROOT 6.24 REQUIRED)
+target_link_libraries(
+  RootSupport INTERFACE
   ROOT::Core
   ROOT::Gpad
   ROOT::Hist

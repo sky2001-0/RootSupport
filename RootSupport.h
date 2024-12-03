@@ -1,5 +1,5 @@
-#ifndef ROOTSUPPORT_HH
-#define ROOTSUPPORT_HH
+#ifndef ROOTSUPPORT_H
+#define ROOTSUPPORT_H
 
 #include <filesystem>
 #include <memory>
@@ -34,7 +34,8 @@
 #include "TSystem.h"
 #include "TVirtualFFT.h"
 
-#include "RootStyle.hh"
+#include "libs/RootStyle.h"
+#include "libs/RootTree.h"
 
 
 
@@ -72,6 +73,16 @@ namespace rs
       static_assert(
         std::is_base_of_v<TGraph, TGraphLike>,
         "Template parameter TGraphLike must be derived from TGraph."
+      );
+    }
+
+
+    template <typename THistoLike>
+    void Assert_if_is_inheritance_of_TH1()
+    {
+      static_assert(
+        std::is_base_of_v<TH1, THistoLike>,
+        "Template parameter THistoLike must be derived from TH1."
       );
     }
   }
@@ -214,7 +225,7 @@ namespace rs
 
   namespace graph
   {
-    template <typename TGraphLike>
+    template <typename TGraphLike = TGraph>
     std::unique_ptr<TGraphLike> Create(
       const Int_t n,
       const Char_t* name,
@@ -463,18 +474,17 @@ namespace rs
     }
 
 
-    /*
-      Caution !
-      The condition of inheriting from TObject is too broad in scope.
-    */
-    template <typename TObjectLike>
+    template <typename THasAxis>
     void SetLimit(
-      const std::unique_ptr<TObjectLike>& obj,
+      const std::unique_ptr<THasAxis>& obj,
       const std::pair<Double_t, Double_t> x_limit = {0., 0.},
       const std::pair<Double_t, Double_t> y_limit = {0., 0.}
     )
     {
-      rss::Assert_if_is_inheritance_of_TObject<TObjectLike>();
+      static_assert(
+        std::is_base_of_v<TGraph, THasAxis> || std::is_base_of_v<TH1, THasAxis>,
+        "Template parameter THasAxis must be derived from TGraph or TH1."
+      );
 
       if (x_limit.first < x_limit.second) {
         obj->GetXaxis()->SetLimits(x_limit.first, x_limit.second);
@@ -486,9 +496,9 @@ namespace rs
     }
 
 
-    template <typename TObjectLike>
+    template <typename THasAxis>
     void SetLimitY(
-      const std::unique_ptr<TObjectLike>& obj,
+      const std::unique_ptr<THasAxis>& obj,
       const std::pair<Double_t, Double_t> y_limit
     )
     {
@@ -603,7 +613,6 @@ namespace rs
       rss::Assert_if_is_inheritance_of_TObject<TObjectLike>();
 
       auto c = std::make_unique<TCanvas>(obj->GetName(), obj->GetTitle());
-      c->cd();
       obj->Draw(opt);
       if (with_legend) {
         const double& x_1 = std::get<0>(legend_position);
@@ -764,4 +773,4 @@ namespace rs
 
 
 
-#endif // ROOTSUPPORT_HH
+#endif // ROOTSUPPORT_H
